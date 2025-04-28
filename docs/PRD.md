@@ -1,4 +1,4 @@
-# Product Requirements Document (PRD) - QuizUp-like MVP
+# Product Requirements Document (PRD)
 
 ## 1. Introduction
 
@@ -28,6 +28,8 @@ This document outlines the requirements for the Minimum Viable Product (MVP) of 
     *   Creation of a corresponding user profile document in Firestore (`users` collection) upon signup.
     *   Logout functionality.
     *   Automatic redirection based on authentication state.
+    *   *Enhancement:* Send email verification link upon signup.
+    *   *Enhancement:* Display email verification status after login.
 *   **`F-TOPIC-01`**: Topic Selection:
     *   Display a list of available quiz topics fetched from Firestore (`topics` collection).
     *   Allow users to select a topic to initiate matchmaking.
@@ -122,27 +124,29 @@ Referencing the Firestore structure defined previously (`users`, `topics`, `ques
 
 ## Development Roadmap (Phased Approach)
 
-This roadmap breaks down the MVP development into logical phases. Estimates are rough (S=Small, M=Medium, L=Large).
+Estimates are rough (S=Small, M=Medium, L=Large).
 
 ### Phase 0: Foundation & Setup (S)
 
-*   Task 0.1: Initialize Flutter Project & Git Repository.
-*   Task 0.2: Setup Firebase Project (Auth, Firestore).
-*   Task 0.3: Integrate Firebase SDKs into Flutter App.
-*   Task 0.4: Define Base Project Structure (Feature-first: core, features/auth, etc.).
-*   Task 0.5: Setup Dependency Injection (flutter_bloc, RepositoryProvider, BlocProvider).
-*   Task 0.6: Define Core App Navigation Shell.
+*   Task 0.1: Initialize Flutter Project & Git Repository. [DONE]
+*   Task 0.2: Setup Firebase Project (Auth, Firestore). [DONE]
+*   Task 0.3: Integrate Firebase SDKs into Flutter App. [DONE]
+*   Task 0.4: Define Base Project Structure (Feature-first: core, features/auth, etc.). [DONE]
+*   Task 0.5: Setup Dependency Injection (flutter_bloc, RepositoryProvider, BlocProvider). [DONE - Package Added]
+*   Task 0.6: Define Core App Navigation Shell. [DONE - Basic Structure]
 
 ### Phase 1: Authentication (M)
 
-*   Task 1.1: Implement AuthRepository (interface with FirebaseAuth).
-*   Task 1.2: Implement AuthCubit (manage login/signup state, interact with Repository).
-*   Task 1.3: Build UI Screens (Login, Signup).
-*   Task 1.4: Implement form validation.
-*   Task 1.5: Integrate Cubit with UI for state changes and actions.
-*   Task 1.6: Implement user creation in `users` collection on signup.
-*   Task 1.7: Implement auth state listener for routing (App level).
-*   Task 1.8: Implement Logout functionality.
+*   Task 1.1: Implement AuthRepository (interface with FirebaseAuth). [DONE]
+*   Task 1.2: Implement AuthCubit (manage login/signup state, interact with Repository). [DONE]
+*   Task 1.3: Build UI Screens (Login, Signup). [DONE]
+*   Task 1.4: Implement form validation. [DONE]
+*   Task 1.5: Integrate Cubit with UI for state changes and actions. [DONE]
+*   Task 1.6: Implement user creation in `users` collection on signup. [DONE - In AuthRepositoryImpl]
+*   Task 1.7: Implement auth state listener for routing (App level). [DONE]
+*   Task 1.8: Implement Logout functionality. [DONE - In HomeScreen]
+*   *Enhancement:* Send email verification on signup. [DONE - In AuthRepositoryImpl]
+*   *Enhancement:* Display verification status on Home Screen. [DONE - In HomeScreen]
 
 ### Phase 2: Topics & Basic Data (S-M)
 

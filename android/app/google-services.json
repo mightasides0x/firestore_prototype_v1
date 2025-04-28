@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "21999353265",
+    "project_id": "balmy-access-457618-r4",
+    "storage_bucket": "balmy-access-457618-r4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21999353265:android:84639603311e05885c1190",
+        "android_client_info": {
+          "package_name": "com.example.firestore_prototype_v1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCruCn6VA022Pfxaoc_dTvbhW5fC1laOiM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
