@@ -150,12 +150,12 @@ Estimates are rough (S=Small, M=Medium, L=Large).
 
 ### Phase 2: Topics & Basic Data (S-M)
 
-*   Task 2.1: Manually Seed `topics` and `questions` data in Firestore.
-*   Task 2.2: Implement TopicRepository (fetch topics).
-*   Task 2.3: Implement QuestionRepository (fetch questions by ID - needed later).
-*   Task 2.4: Implement TopicSelectionCubit.
-*   Task 2.5: Build Topic Selection UI (List/Grid on Home Screen).
-*   Task 2.6: Connect UI to Cubit to display topics.
+*   Task 2.1: Manually Seed `topics` and `questions` data in Firestore. [DONE - Programmatically Seeded]
+*   Task 2.2: Implement TopicRepository (fetch topics). [DONE]
+*   Task 2.3: Implement QuestionRepository (fetch questions by ID - needed later). [DONE]
+*   Task 2.4: Implement TopicSelectionCubit. [DONE]
+*   Task 2.5: Build Topic Selection UI (List/Grid on Home Screen). [DONE]
+*   Task 2.6: Connect UI to Cubit to display topics. [DONE]
 
 ### Phase 3: Matchmaking (M-L)
 
