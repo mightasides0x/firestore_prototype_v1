@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firestore_prototype_v1/core/domain/entities/question.dart';
+import 'package:firestore_prototype_v1/core/models/question.dart';
 import 'package:firestore_prototype_v1/features/game/domain/repositories/question_repository.dart';
 import 'package:logging/logging.dart';
 
@@ -57,6 +57,31 @@ class QuestionRepositoryImpl implements QuestionRepository {
     } catch (e, stackTrace) {
       _log.severe('Error fetching questions by IDs from Firestore', e, stackTrace);
       throw Exception('Failed to fetch questions by IDs: $e');
+    }
+  }
+
+  @override
+  Future<List<String>> getQuestionIdsByTopic(String topicId, {int? limit}) async {
+    _log.info('Fetching question IDs for topic: $topicId, limit: $limit');
+    try {
+      Query query = _firestore
+          .collection('questions')
+          .where('topicId', isEqualTo: topicId); // Assuming 'topicId' field exists
+
+      if (limit != null && limit > 0) {
+        query = query.limit(limit);
+      }
+
+      // Fetch the documents matching the query
+      final snapshot = await query.get();
+
+      // Map the document IDs
+      final ids = snapshot.docs.map((doc) => doc.id).toList();
+      _log.info('Fetched ${ids.length} question IDs for topic $topicId.');
+      return ids;
+    } catch (e, stackTrace) {
+      _log.severe('Error fetching question IDs by topic $topicId', e, stackTrace);
+      throw Exception('Failed to fetch question IDs for topic $topicId: $e');
     }
   }
 } 

@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-This document outlines the requirements for the Minimum Viable Product (MVP) of a real-time, head-to-head mobile quiz application, similar in core concept to QuizUp. The MVP focuses on validating the core gameplay loop: user authentication, topic selection, matchmaking, real-time quiz experience, and results display. The application will be built using Flutter for the frontend and Cloud Firestore (with Firebase Authentication) for the backend. State management will primarily use the Cubit/BLoC pattern.
+*   This document outlines the requirements for the Minimum Viable Product (MVP) of a real-time, head-to-head mobile quiz application, similar in core concept to QuizUp. 
 
 ## 2. Goals
 
@@ -159,13 +159,13 @@ Estimates are rough (S=Small, M=Medium, L=Large).
 
 ### Phase 3: Matchmaking (M-L)
 
-*   Task 3.1: Implement MatchmakingRepository (write to pool, query pool, perform match transaction, update users).
-*   Task 3.2: Implement MatchmakingCubit (handle entering pool, waiting state, success/failure).
-*   Task 3.3: Update Topic Selection UI: Trigger matchmaking on tap.
-*   Task 3.4: Build "Waiting for Opponent" UI state/widget.
-*   Task 3.5: Implement listener on users doc (`currentMatchId`) to detect match success.
-*   Task 3.6: Setup navigation to Game Screen (placeholder initially).
-*   Task 3.7: Implement basic timeout handling (client-side).
+*   Task 3.1: Implement MatchmakingRepository (write to pool, query pool, perform match transaction, update users). [DONE]
+*   Task 3.2: Implement MatchmakingCubit (handle entering pool, waiting state, success/failure). [DONE]
+*   Task 3.3: Update Topic Selection UI: Trigger matchmaking on tap. [DONE]
+*   Task 3.4: Build "Waiting for Opponent" UI state/widget. [DONE]
+*   Task 3.5: Implement listener on users doc (`currentMatchId`) to detect match success. [DONE - Handled by Cubit]
+*   Task 3.6: Setup navigation to Game Screen (placeholder initially). [DONE]
+*   Task 3.7: Implement basic timeout handling (client-side). [DONE - In Cubit]
 
 ### Phase 4: Game Screen Foundation & State (M)
 

@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:firestore_prototype_v1/core/domain/entities/topic.dart'; // Import Topic model
+import 'package:firestore_prototype_v1/core/models/topic.dart'; // Import Topic model
 import 'package:firestore_prototype_v1/features/home/domain/repositories/topic_repository.dart';
 import 'package:logging/logging.dart';
 

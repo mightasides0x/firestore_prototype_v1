@@ -5,6 +5,9 @@ abstract class AuthRepository {
   // Stream to listen for authentication state changes (logged in/out user)
   Stream<firebase_auth.User?> get user;
 
+  // Stream to listen for changes to the user's currentMatchId field
+  Stream<String?> get onMatchIdChanged;
+
   // Sign up with email and password
   Future<void> signUp({required String email, required String password});
 

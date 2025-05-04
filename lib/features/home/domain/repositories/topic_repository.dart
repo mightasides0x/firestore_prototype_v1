@@ -1,4 +1,4 @@
-import 'package:firestore_prototype_v1/core/domain/entities/topic.dart';
+import 'package:firestore_prototype_v1/core/models/topic.dart';
 
 // Contract for fetching topic data
 abstract class TopicRepository {

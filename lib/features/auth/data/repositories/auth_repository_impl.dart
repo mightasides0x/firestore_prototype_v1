@@ -10,6 +10,12 @@ class AuthRepositoryImpl implements AuthRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
 
+  // Constants
+  static const String _usersCollection = 'users';
+  static const String _fieldCurrentMatchId = 'currentMatchId';
+  static const String _fieldEmail = 'email';
+  static const String _fieldCreatedAt = 'createdAt';
+
   AuthRepositoryImpl({
     firebase_auth.FirebaseAuth? firebaseAuth,
     FirebaseFirestore? firestore,
@@ -22,10 +28,38 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Stream<String?> get onMatchIdChanged {
+    return user.asyncExpand<String?>((firebaseUser) {
+      if (firebaseUser == null) {
+        _log.info('User logged out, matchId stream emitting null.');
+        return Stream.value(null);
+      } else {
+        _log.info('User ${firebaseUser.uid} logged in, listening to matchId changes.');
+        final userDocRef = _firestore.collection(_usersCollection).doc(firebaseUser.uid);
+        return userDocRef.snapshots().map((docSnapshot) {
+          if (!docSnapshot.exists || docSnapshot.data() == null) {
+            _log.warning('User document ${firebaseUser.uid} does not exist or has no data.');
+            return null;
+          }
+          final data = docSnapshot.data()!;
+          final matchId = data[_fieldCurrentMatchId] as String?;
+          _log.finer('User document ${firebaseUser.uid} snapshot received. Match ID: $matchId');
+          return matchId;
+        }).handleError((error, stackTrace) {
+          _log.severe('Error listening to user document ${firebaseUser.uid} snapshots', error, stackTrace);
+          // Emit null or let the error propagate? Emitting null might be safer for UI.
+          return null;
+        });
+      }
+    });
+  }
+
+  @override
   Future<void> signUp({
     required String email,
     required String password,
   }) async {
+    _log.info('Attempting to sign up user with email: $email');
     try {
       // 1. Create user in Firebase Auth
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -42,18 +76,17 @@ class AuthRepositoryImpl implements AuthRepository {
       // Send verification email
       try {
         await firebaseUser.sendEmailVerification();
-        _log.info('Verification email sent to ${firebaseUser.email}');
+        _log.info('Verification email sent to $email');
       } catch (e, stackTrace) {
         // Log if sending email fails, but don't block signup
         _log.warning('Failed to send verification email', e, stackTrace);
       }
 
       // 2. Create corresponding user document in Firestore (Task 1.6)
-      await _firestore.collection('users').doc(firebaseUser.uid).set({
-        'uid': firebaseUser.uid,
-        'email': email,
-        'createdAt': FieldValue.serverTimestamp(), // Good practice to store creation time
-        'currentMatchId': null, // Initialize fields expected later
+      await _firestore.collection(_usersCollection).doc(firebaseUser.uid).set({
+        _fieldEmail: email,
+        _fieldCreatedAt: FieldValue.serverTimestamp(), // Good practice to store creation time
+        _fieldCurrentMatchId: null, // Initialize fields expected later
         // Add any other initial user fields here
       });
     } on firebase_auth.FirebaseAuthException catch (e, stackTrace) {
@@ -72,17 +105,19 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) async {
+    _log.info('Attempting login for $email');
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-    } on firebase_auth.FirebaseAuthException catch (e, stackTrace) {
-      _log.warning('FirebaseAuthException during login: ${e.code}', e, stackTrace);
-      throw Exception('Log in failed: ${e.message}');
+      _log.info('Login successful for $email');
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      _log.severe('Firebase Auth Login error: ${e.code}', e);
+      throw Exception('Login failed: ${e.message ?? e.code}');
     } catch (e, stackTrace) {
-      _log.severe('Unexpected error during login', e, stackTrace);
-      throw Exception('An unexpected error occurred during log in.');
+      _log.severe('General Login error', e, stackTrace);
+      throw Exception('An unexpected error occurred during login.');
     }
   }
 
@@ -90,12 +125,10 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> logOut() async {
     try {
       await _firebaseAuth.signOut();
-    } on firebase_auth.FirebaseAuthException catch (e, stackTrace) {
-      _log.warning('FirebaseAuthException during logout: ${e.code}', e, stackTrace);
-      throw Exception('Log out failed: ${e.message}');
+      _log.info('User logged out successfully.');
     } catch (e, stackTrace) {
-      _log.severe('Unexpected error during logout', e, stackTrace);
-      throw Exception('An unexpected error occurred during log out.');
+      _log.severe('Error logging out', e, stackTrace);
+      // Let caller handle logout errors if needed, often safe to ignore
     }
   }
 } 
