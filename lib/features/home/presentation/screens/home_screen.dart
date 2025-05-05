@@ -11,6 +11,7 @@ import 'package:firestore_prototype_v1/features/matchmaking/presentation/cubit/m
 // Import matchmaking state for listener
 import 'package:firestore_prototype_v1/features/matchmaking/presentation/cubit/matchmaking_state.dart';
 import 'package:firestore_prototype_v1/features/game/presentation/screens/game_screen.dart';
+import 'package:go_router/go_router.dart';
 
 // Helper variable to track if the dialog is currently shown
 // Note: Using a global variable like this isn't ideal for complex scenarios,
@@ -112,18 +113,53 @@ class HomeScreen extends StatelessWidget {
         // Navigate on success
         else if (matchmakingState is MatchmakingSuccess) {
           print('Matchmaking Success! Navigating to Game Screen for game: ${matchmakingState.gameId}');
-          Navigator.of(context).pushNamed(
-            GameScreen.routeName,
-            arguments: matchmakingState.gameId,
-          );
+          context.push('/game/${matchmakingState.gameId}');
         }
-        // Optional: Handle cancelled state if needed (e.g., show snackbar)
-        // else if (matchmakingState is MatchmakingCancelled) { ... }
+        // Handle cancelled state AND dismiss dialog
+        else if (matchmakingState is MatchmakingCancelled) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Matchmaking Cancelled'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          _dismissWaitingDialog(context);
+        }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Select a Topic'), // Changed title
+          title: const Text('Select a Topic'),
           actions: [
+            // Temporary button to clear user's match state
+            IconButton(
+              icon: const Icon(Icons.cleaning_services),
+              tooltip: 'Clear Match State',
+              onPressed: () async {
+                 // Prevent action while searching for a match
+                 if (context.read<MatchmakingCubit>().state is MatchmakingSearching) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Cannot clear state while searching.')),
+                    );
+                    return;
+                  }
+                 try {
+                    await context.read<AuthCubit>().clearMatchId();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Match state cleared successfully.'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                 } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to clear match state: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                 }
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.logout),
               tooltip: 'Logout',

@@ -19,4 +19,7 @@ abstract class AuthRepository {
 
   // Log out the current user
   Future<void> logOut();
+
+  // Clears the currentMatchId field for the specified user
+  Future<void> clearUserMatchId(String userId);
 } 

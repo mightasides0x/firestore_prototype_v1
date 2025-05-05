@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
+import 'package:go_router/go_router.dart';
 
 // Auth Feature
 import 'package:firestore_prototype_v1/features/auth/data/repositories/auth_repository_impl.dart';
@@ -22,14 +23,20 @@ import 'package:firestore_prototype_v1/features/home/presentation/screens/home_s
 // Game Feature
 import 'package:firestore_prototype_v1/features/game/data/repositories/question_repository_impl.dart';
 import 'package:firestore_prototype_v1/features/game/domain/repositories/question_repository.dart';
+import 'package:firestore_prototype_v1/features/game/domain/repositories/game_repository.dart';
+import 'package:firestore_prototype_v1/features/game/data/repositories/game_repository_impl.dart';
 
 // Matchmaking Feature
 import 'package:firestore_prototype_v1/features/matchmaking/data/repositories/matchmaking_repository_impl.dart';
 import 'package:firestore_prototype_v1/features/matchmaking/domain/repositories/matchmaking_repository.dart';
 import 'package:firestore_prototype_v1/features/matchmaking/presentation/cubit/matchmaking_cubit.dart';
 
-// Import GameScreen
+// Import GameScreen and GameCubit
 import 'package:firestore_prototype_v1/features/game/presentation/screens/game_screen.dart';
+import 'package:firestore_prototype_v1/features/game/presentation/cubit/game_cubit.dart';
+
+// Import the AppRouter
+import 'package:firestore_prototype_v1/core/navigation/app_router.dart';
 
 void main() async {
   // Configure logging FIRST
@@ -59,12 +66,18 @@ void main() async {
   final topicRepository = TopicRepositoryImpl(firestore: firestore);
   final questionRepository = QuestionRepositoryImpl(firestore: firestore);
   final matchmakingRepository = MatchmakingRepositoryImpl(firestore: firestore);
+  final gameRepository = GameRepositoryImpl(firestore: firestore);
+
+  // Create the router instance
+  final appRouter = AppRouter(authRepository: authRepository);
 
   runApp(MyApp(
     authRepository: authRepository,
     topicRepository: topicRepository,
     questionRepository: questionRepository,
     matchmakingRepository: matchmakingRepository,
+    gameRepository: gameRepository,
+    router: appRouter.router, // Pass the GoRouter instance
   ));
 }
 
@@ -73,6 +86,8 @@ class MyApp extends StatelessWidget {
   final TopicRepository topicRepository;
   final QuestionRepository questionRepository;
   final MatchmakingRepository matchmakingRepository;
+  final GameRepository gameRepository;
+  final GoRouter router; // Add router property
 
   const MyApp({
     super.key,
@@ -80,6 +95,8 @@ class MyApp extends StatelessWidget {
     required this.topicRepository,
     required this.questionRepository,
     required this.matchmakingRepository,
+    required this.gameRepository,
+    required this.router, // Add to constructor
   });
 
   @override
@@ -91,6 +108,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider.value(value: topicRepository),
         RepositoryProvider.value(value: questionRepository),
         RepositoryProvider.value(value: matchmakingRepository),
+        RepositoryProvider.value(value: gameRepository),
       ],
       // Then provide Blocs/Cubits that depend on repositories
       child: MultiBlocProvider(
@@ -112,51 +130,20 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ],
-        child: BlocBuilder<AuthCubit, AuthState>(
-          builder: (context, authState) {
-            return MaterialApp(
-              title: 'Realtime Quiz',
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-                useMaterial3: true,
-              ),
-              home: _buildHome(authState),
-              routes: {
-                // Reverted to simple string routes
-                '/login': (context) => const LoginScreen(),
-                '/signup': (context) => const SignUpScreen(),
-                '/home': (context) => const HomeScreen(),
-                // Add GameScreen route
-                GameScreen.routeName: (context) {
-                  // Extract gameId from arguments
-                  final gameId = ModalRoute.of(context)?.settings.arguments as String?;
-                  // Handle cases where gameId might be null (e.g., navigating directly)
-                  if (gameId == null) {
-                    // Navigate back or show error
-                    // For simplicity, return a placeholder or navigate home
-                    print('Error: Navigated to GameScreen without gameId!');
-                    return const Scaffold(
-                      body: Center(child: Text('Error: Missing Game ID')),
-                    );
-                  }
-                  return GameScreen(gameId: gameId);
-                },
-              },
-            );
-          },
+        // Remove BlocBuilder<AuthCubit, AuthState>
+        // Use MaterialApp.router instead of MaterialApp
+        child: MaterialApp.router(
+          title: 'Realtime Quiz',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          // Provide the router configuration
+          routerConfig: router,
+          // home, routes, onGenerateRoute are replaced by routerConfig
         ),
       ),
     );
-  }
-
-  Widget _buildHome(AuthState state) {
-    if (state is Authenticated) {
-      // User is authenticated, show HomeScreen
-      return const HomeScreen();
-    } else {
-      // User is not authenticated, show LoginScreen
-      return const LoginScreen();
-    }
   }
 }

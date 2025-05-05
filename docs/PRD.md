@@ -147,15 +147,17 @@ Estimates are rough (S=Small, M=Medium, L=Large).
 *   Task 1.8: Implement Logout functionality. [DONE - In HomeScreen]
 *   *Enhancement:* Send email verification on signup. [DONE - In AuthRepositoryImpl]
 *   *Enhancement:* Display verification status on Home Screen. [DONE - In HomeScreen]
+*   Task 1.9: Test Phase 1 functionality on Simulator/Device. [DONE]
 
 ### Phase 2: Topics & Basic Data (S-M)
 
 *   Task 2.1: Manually Seed `topics` and `questions` data in Firestore. [DONE - Programmatically Seeded]
-*   Task 2.2: Implement TopicRepository (fetch topics). [DONE]
+*   Task 2.2: Implement TopicRepository (fetch topics). [DONE - Moved to topic feature]
 *   Task 2.3: Implement QuestionRepository (fetch questions by ID - needed later). [DONE]
-*   Task 2.4: Implement TopicSelectionCubit. [DONE]
+*   Task 2.4: Implement TopicSelectionCubit. [DONE - Renamed to HomeCubit]
 *   Task 2.5: Build Topic Selection UI (List/Grid on Home Screen). [DONE]
 *   Task 2.6: Connect UI to Cubit to display topics. [DONE]
+*   Task 2.7: Test Phase 2 functionality on Simulator/Device. [DONE]
 
 ### Phase 3: Matchmaking (M-L)
 
@@ -163,39 +165,43 @@ Estimates are rough (S=Small, M=Medium, L=Large).
 *   Task 3.2: Implement MatchmakingCubit (handle entering pool, waiting state, success/failure). [DONE]
 *   Task 3.3: Update Topic Selection UI: Trigger matchmaking on tap. [DONE]
 *   Task 3.4: Build "Waiting for Opponent" UI state/widget. [DONE]
-*   Task 3.5: Implement listener on users doc (`currentMatchId`) to detect match success. [DONE - Handled by Cubit]
+*   Task 3.5: Implement listener on users doc (`currentMatchId`) to detect match success. [DONE - Via AuthRepository Stream]
 *   Task 3.6: Setup navigation to Game Screen (placeholder initially). [DONE]
 *   Task 3.7: Implement basic timeout handling (client-side). [DONE - In Cubit]
+*   Task 3.8: Test Phase 3 functionality on Simulator/Device. [DONE]
 
 ### Phase 4: Game Screen Foundation & State (M)
 
-*   Task 4.1: Implement GameRepository (get `game` stream snapshots(), potentially game creation logic if not fully in Matchmaking repo).
-*   Task 4.2: Define Game, Player, Answer data models/entities.
-*   Task 4.3: Implement GameCubit (subscribe to game stream, manage game state).
-*   Task 4.4: Build basic Game Screen UI structure.
-*   Task 4.5: Implement logic in GameCubit to fetch initial game state and related questions (using QuestionRepository).
-*   Task 4.6: Connect Game Screen UI to GameCubit to display basic info (players, initial state).
+*   Task 4.1: Implement GameRepository (get `game` stream snapshots(), potentially game creation logic if not fully in Matchmaking repo). [DONE]
+*   Task 4.2: Define Game, Player, Answer data models/entities. [DONE]
+*   Task 4.3: Implement GameCubit (subscribe to game stream, manage game state). [DONE]
+*   Task 4.4: Build basic Game Screen UI structure. [DONE]
+*   Task 4.5: Implement logic in GameCubit to fetch initial game state and related questions (using QuestionRepository). [DONE]
+*   Task 4.6: Connect Game Screen UI to GameCubit to display basic info (players, initial state). [DONE]
+*   Task 4.7: Test Phase 4 foundation on Simulator/Device.
 
 ### Phase 5: Core Gameplay Loop & Real-time Sync (L)
 
 *   Task 5.1: Implement Question & Options display widget in Game Screen.
 *   Task 5.2: Implement Question Timer UI and logic (driven by GameCubit state).
 *   Task 5.3: Implement answer selection UI interaction.
-*   Task 5.4: Add `submitAnswer` method to GameRepository (update game doc in Firestore).
-*   Task 5.5: Update GameCubit to handle answer submission, calculate score/time, call Repository.
+*   Task 5.4: Add `submitAnswer` method to GameRepository (update game doc in Firestore). [DONE]
+*   Task 5.5: Update GameCubit to handle answer submission, calculate score/time, call Repository. [DONE]
 *   Task 5.6: Update Game Screen UI to react to real-time score updates from GameCubit state.
 *   Task 5.7: Implement UI indication for opponent's answer status.
-*   Task 5.8: Add question advancement logic to GameRepository (update index, reset ready flags - called by Player 1).
+*   Task 5.8: Add question advancement logic to GameRepository (update index, reset ready flags - called by Player 1). [DONE]
 *   Task 5.9: Implement logic in GameCubit (for Player 1) to check readiness and trigger question advancement via Repository.
-*   Task 5.10: Handle game end detection in GameCubit (based on `currentQuestionIndex` vs `questionIds.length`).
+*   Task 5.10: Handle game end detection in GameCubit (based on `currentQuestionIndex` vs `questionIds.length`). [DONE - Basic check in stream listener]
+*   Task 5.11: Test Phase 5 core loop on Simulator/Device.
 
 ### Phase 6: Results Screen (S)
 
 *   Task 6.1: Build Results Screen UI.
 *   Task 6.2: Implement navigation from Game Screen to Results Screen (triggered by GameCubit).
-*   Task 6.3: Display final scores and winner determination on Results Screen (using final game state).
+*   Task 6.3: Display final scores and winner determination on Results Screen (using final game state). [DONE - Basic UI in GameScreen]
 *   Task 6.4: Implement "Play Again" / "Home" navigation buttons.
 *   Task 6.5: (Optional) Implement cleanup logic (e.g., nullify `currentMatchId`).
+*   Task 6.6: Test Phase 6 results display on Simulator/Device.
 
 ### Phase 7: Security, Polish & Testing (M-L)
 
@@ -207,4 +213,5 @@ Estimates are rough (S=Small, M=Medium, L=Large).
 *   Task 7.6: Conduct Manual End-to-End Testing of the entire user flow.
 *   Task 7.7: Basic UI polish and consistency check.
 *   Task 7.8: Setup build configurations for deployment (iOS/Android).
-*   Task 7.9: (Optional) Setup basic analytics or crash reporting. 
+*   Task 7.9: (Optional) Setup basic analytics or crash reporting.
+*   Task 7.10: Final End-to-End testing on Simulator/Device. 

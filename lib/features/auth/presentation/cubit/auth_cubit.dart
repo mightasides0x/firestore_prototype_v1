@@ -3,17 +3,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart'; // Import here
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth; // Import here
 import 'package:firestore_prototype_v1/features/auth/domain/repositories/auth_repository.dart';
+import 'package:logging/logging.dart'; // Use consistent logging package
 
 part 'auth_state.dart'; // Include the state file
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _authRepository;
   late StreamSubscription<firebase_auth.User?> _userSubscription;
+  static final _log = Logger('AuthCubit');
 
   AuthCubit({required AuthRepository authRepository}) // Inject repository
       : _authRepository = authRepository,
-        super(AuthInitial()) { // Start with Initial state
-    // Listen to user changes immediately
+        super(AuthInitial()) // Start with Initial state
+  {
+    // Subscribe to user changes immediately upon creation
     _userSubscription = _authRepository.user.listen(_onUserChanged);
   }
 
@@ -27,32 +30,54 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> signUp(String email, String password) async {
-    emit(AuthLoading());
     try {
       await _authRepository.signUp(email: email, password: password);
-      // State will automatically change to Authenticated via _onUserChanged listener
+      // State will update via _onUserChanged listener
     } catch (e) {
       emit(AuthError(e.toString()));
+      emit(Unauthenticated()); // Revert to unauthenticated after error
     }
   }
 
   Future<void> logIn(String email, String password) async {
-    emit(AuthLoading());
     try {
-      await _authRepository.logInWithEmailAndPassword(email: email, password: password);
-      // State will automatically change to Authenticated via _onUserChanged listener
+      await _authRepository.logInWithEmailAndPassword(
+          email: email, password: password);
+      // State will update via _onUserChanged listener
     } catch (e) {
       emit(AuthError(e.toString()));
+      emit(Unauthenticated()); // Revert to unauthenticated after error
     }
   }
 
   Future<void> logOut() async {
-    // Don't necessarily need loading state for logout, but can add if desired
     try {
       await _authRepository.logOut();
-      // State will automatically change to Unauthenticated via _onUserChanged listener
+      emit(Unauthenticated()); // Explicitly emit unauthenticated state
     } catch (e) {
-      emit(AuthError(e.toString())); // Emit error if logout fails
+      // Log error, but still assume logout locally
+      _log.severe('Error during logout', e);
+      emit(Unauthenticated());
+    }
+  }
+
+  Future<void> clearMatchId() async {
+    if (state is Authenticated) {
+      final user = (state as Authenticated).user;
+      if (user != null) {
+        try {
+          await _authRepository.clearUserMatchId(user.uid);
+          _log.info('User triggered match ID clear successfully.');
+          // Optionally emit a success state or message?
+        } catch (e) {
+          _log.severe('Error clearing match ID via Cubit', e);
+          // Optionally emit an error state or message?
+        }
+      } else {
+         _log.warning('ClearMatchId called but user is null in state.');
+      }
+    } else {
+       _log.warning('ClearMatchId called when not authenticated.');
     }
   }
 

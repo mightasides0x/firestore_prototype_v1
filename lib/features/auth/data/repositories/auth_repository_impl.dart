@@ -131,4 +131,18 @@ class AuthRepositoryImpl implements AuthRepository {
       // Let caller handle logout errors if needed, often safe to ignore
     }
   }
+
+  @override
+  Future<void> clearUserMatchId(String userId) async {
+    _log.info('Clearing currentMatchId for user $userId');
+    try {
+      final userDocRef = _firestore.collection(_usersCollection).doc(userId);
+      await userDocRef.update({_fieldCurrentMatchId: null});
+      _log.info('Successfully cleared currentMatchId for user $userId.');
+    } catch (e, stackTrace) {
+      _log.severe('Error clearing currentMatchId for user $userId', e, stackTrace);
+      // Rethrow or handle as needed
+      throw Exception('Failed to clear match state: ${e.toString()}');
+    }
+  }
 } 
