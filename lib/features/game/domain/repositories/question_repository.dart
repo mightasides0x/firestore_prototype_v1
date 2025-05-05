@@ -1,4 +1,4 @@
-import 'package:firestore_prototype_v1/core/models/question.dart';
+import 'package:firestore_prototype_v1/features/game/domain/entities/question.dart';
 
 // Contract for fetching question data
 abstract class QuestionRepository {

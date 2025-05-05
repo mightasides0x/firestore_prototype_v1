@@ -4,10 +4,9 @@ import 'package:firestore_prototype_v1/features/auth/presentation/cubit/auth_cub
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth; // Import User type
 
 // Import Home feature dependencies
-import 'package:firestore_prototype_v1/features/home/data/repositories/topic_repository_impl.dart';
-import 'package:firestore_prototype_v1/features/home/domain/repositories/topic_repository.dart';
-import 'package:firestore_prototype_v1/features/home/presentation/cubit/topic_selection_cubit.dart';
-import 'package:firestore_prototype_v1/core/models/topic.dart';
+import 'package:firestore_prototype_v1/features/topic/domain/entities/topic.dart'; // Updated path
+import 'package:firestore_prototype_v1/features/home/presentation/cubit/home_cubit.dart'; // Renamed cubit
+import 'package:firestore_prototype_v1/features/home/presentation/cubit/home_state.dart'; // Renamed state
 import 'package:firestore_prototype_v1/features/matchmaking/presentation/cubit/matchmaking_cubit.dart';
 // Import matchmaking state for listener
 import 'package:firestore_prototype_v1/features/matchmaking/presentation/cubit/matchmaking_state.dart';
@@ -84,153 +83,149 @@ class HomeScreen extends StatelessWidget {
     }
     final bool isVerified = user.emailVerified;
 
-    // Provide Topic Repository & Cubit specifically for this screen/feature area
-    return BlocProvider(
-      create: (context) => TopicSelectionCubit(
-        // Use RepositoryProvider.of if repository was provided higher up,
-        // otherwise instantiate directly (simpler for now)
-        topicRepository: TopicRepositoryImpl(),
-      )..loadTopics(), // Load topics immediately when cubit is created
-      // Use BlocListener to react to Matchmaking state changes for dialogs/navigation
-      child: BlocListener<MatchmakingCubit, MatchmakingState>(
-        listener: (context, matchmakingState) {
-          // Dismiss dialog if it's showing and we are no longer searching
-          if (matchmakingState is! MatchmakingSearching && _isMatchmakingDialogShowing) {
-             _dismissWaitingDialog(context);
-          }
+    // Remove local BlocProvider for TopicSelectionCubit
+    // return BlocProvider(
+    //   create: (context) => TopicSelectionCubit(
+    //     topicRepository: context.read<TopicRepository>(), // Get from provider
+    //   )..loadTopics(),
+    //   child: BlocListener<MatchmakingCubit, MatchmakingState>(
+    return BlocListener<MatchmakingCubit, MatchmakingState>(
+      listener: (context, matchmakingState) {
+        // Dismiss dialog if it's showing and we are no longer searching
+        if (matchmakingState is! MatchmakingSearching && _isMatchmakingDialogShowing) {
+           _dismissWaitingDialog(context);
+        }
 
-          // Show dialog when searching starts
-          if (matchmakingState is MatchmakingSearching) {
-            _showWaitingDialog(context, matchmakingState.topicId);
-          }
-          // Show error snackbar on failure
-          else if (matchmakingState is MatchmakingFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Matchmaking Failed: ${matchmakingState.message}'),
-                backgroundColor: Colors.red,
+        // Show dialog when searching starts
+        if (matchmakingState is MatchmakingSearching) {
+          _showWaitingDialog(context, matchmakingState.topicId);
+        }
+        // Show error snackbar on failure
+        else if (matchmakingState is MatchmakingFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Matchmaking Failed: ${matchmakingState.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        // Navigate on success
+        else if (matchmakingState is MatchmakingSuccess) {
+          print('Matchmaking Success! Navigating to Game Screen for game: ${matchmakingState.gameId}');
+          Navigator.of(context).pushNamed(
+            GameScreen.routeName,
+            arguments: matchmakingState.gameId,
+          );
+        }
+        // Optional: Handle cancelled state if needed (e.g., show snackbar)
+        // else if (matchmakingState is MatchmakingCancelled) { ... }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Select a Topic'), // Changed title
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Logout',
+              onPressed: () {
+                // Prevent logout while searching for a match
+                if (context.read<MatchmakingCubit>().state is MatchmakingSearching) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please cancel matchmaking before logging out.')),
+                  );
+                  return;
+                }
+                context.read<AuthCubit>().logOut();
+              },
+            ),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Welcome & Verification Section
+              Text(
+                'Welcome, ${user.email}!',
+                style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
               ),
-            );
-          }
-          // Navigate on success
-          else if (matchmakingState is MatchmakingSuccess) {
-            print('Matchmaking Success! Navigating to Game Screen for game: ${matchmakingState.gameId}');
-            Navigator.of(context).pushNamed(
-              GameScreen.routeName,
-              arguments: matchmakingState.gameId,
-            );
-          }
-          // Optional: Handle cancelled state if needed (e.g., show snackbar)
-          // else if (matchmakingState is MatchmakingCancelled) { ... }
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Select a Topic'), // Changed title
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.logout),
-                tooltip: 'Logout',
-                onPressed: () {
-                  // Prevent logout while searching for a match
-                  if (context.read<MatchmakingCubit>().state is MatchmakingSearching) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please cancel matchmaking before logging out.')),
-                    );
-                    return;
-                  }
-                  context.read<AuthCubit>().logOut();
-                },
+              const SizedBox(height: 8),
+              if (!isVerified)
+                Card(
+                   color: Colors.amber.shade100,
+                   child: const Padding(
+                     padding: EdgeInsets.all(8.0),
+                     child: Row(children: [ /* ... unverified content ... */ ]),
+                   ),
+                 )
+              else
+                 Card(
+                   color: Colors.green.shade100,
+                   child: const Padding(
+                     padding: EdgeInsets.all(8.0),
+                     child: Row(children: [ /* ... verified content ... */ ]),
+                   ),
+                 ),
+
+              const SizedBox(height: 24),
+              Text(
+                'Choose a topic to start a quiz:',
+                style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+
+              // Topic List Section
+              Expanded(
+                child: BlocBuilder<HomeCubit, HomeState>(
+                  builder: (context, homeState) { // Renamed state variable
+                    if (homeState is HomeLoading || homeState is HomeInitial) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (homeState is HomeError) {
+                      return Center(
+                        child: Text(
+                          'Error loading topics: ${homeState.message}\nPlease try again later.',
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                    }
+                    if (homeState is HomeLoaded) {
+                      if (homeState.topics.isEmpty) {
+                        return const Center(child: Text('No topics available right now.'));
+                      }
+                      // Build the list/grid using state.topics
+                      return ListView.builder(
+                        itemCount: homeState.topics.length,
+                        itemBuilder: (context, index) {
+                          final topic = homeState.topics[index]; // Use topic from HomeLoaded
+                          return Card(
+                            child: BlocBuilder<MatchmakingCubit, MatchmakingState>(
+                              builder: (context, matchmakingState) {
+                                final bool isSearching = matchmakingState is MatchmakingSearching;
+                                return ListTile(
+                                  title: Text(topic.name),
+                                  trailing: const Icon(Icons.play_arrow),
+                                  enabled: !isSearching,
+                                  onTap: isSearching ? null : () {
+                                    print('Starting matchmaking for Topic: ${topic.name} (ID: ${topic.id})');
+                                    context.read<MatchmakingCubit>().findMatch(topic.id);
+                                  },
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    }
+                    // Should not happen, but fallback
+                    return const Center(child: Text('Something went wrong.'));
+                  },
+                ),
               ),
             ],
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Welcome & Verification Section
-                Text(
-                  'Welcome, ${user.email}!',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                if (!isVerified)
-                  Card(
-                     color: Colors.amber.shade100,
-                     child: const Padding(
-                       padding: EdgeInsets.all(8.0),
-                       child: Row(children: [ /* ... unverified content ... */ ]),
-                     ),
-                   )
-                else
-                   Card(
-                     color: Colors.green.shade100,
-                     child: const Padding(
-                       padding: EdgeInsets.all(8.0),
-                       child: Row(children: [ /* ... verified content ... */ ]),
-                     ),
-                   ),
-
-                const SizedBox(height: 24),
-                Text(
-                  'Choose a topic to start a quiz:',
-                  style: Theme.of(context).textTheme.titleLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-
-                // Topic List Section (Task 2.6 - Connect UI to Cubit)
-                Expanded(
-                  child: BlocBuilder<TopicSelectionCubit, TopicSelectionState>(
-                    builder: (context, state) {
-                      if (state is TopicSelectionLoading || state is TopicSelectionInitial) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (state is TopicSelectionError) {
-                        return Center(
-                          child: Text(
-                            'Error loading topics: ${state.message}\nPlease try again later.',
-                            textAlign: TextAlign.center,
-                          ),
-                        );
-                      }
-                      if (state is TopicSelectionLoaded) {
-                        if (state.topics.isEmpty) {
-                          return const Center(child: Text('No topics available right now.'));
-                        }
-                        // Build the list/grid using state.topics
-                        return ListView.builder(
-                          itemCount: state.topics.length,
-                          itemBuilder: (context, index) {
-                            final topic = state.topics[index];
-                            return Card(
-                              // Disable tap while matchmaking is in progress
-                              child: BlocBuilder<MatchmakingCubit, MatchmakingState>(
-                                builder: (context, matchmakingState) {
-                                  final bool isSearching = matchmakingState is MatchmakingSearching;
-                                  return ListTile(
-                                    title: Text(topic.name),
-                                    trailing: const Icon(Icons.play_arrow),
-                                    enabled: !isSearching, // Disable tile while searching
-                                    onTap: isSearching ? null : () {
-                                      print('Starting matchmaking for Topic: ${topic.name} (ID: ${topic.id})');
-                                      context.read<MatchmakingCubit>().findMatch(topic.id);
-                                    },
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                        );
-                      }
-                      // Should not happen, but fallback
-                      return const Center(child: Text('Something went wrong.'));
-                    },
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

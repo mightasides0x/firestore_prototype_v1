@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firestore_prototype_v1/core/models/topic.dart';
-import 'package:firestore_prototype_v1/features/home/domain/repositories/topic_repository.dart';
+import 'package:firestore_prototype_v1/features/topic/domain/entities/topic.dart'; // Updated path
+import 'package:firestore_prototype_v1/features/topic/domain/repositories/topic_repository.dart'; // Updated path
 import 'package:logging/logging.dart';
 
 class TopicRepositoryImpl implements TopicRepository {

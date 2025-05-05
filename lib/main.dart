@@ -14,9 +14,9 @@ import 'package:firestore_prototype_v1/features/auth/presentation/screens/login_
 import 'package:firestore_prototype_v1/features/auth/presentation/screens/signup_screen.dart';
 
 // Home/Topic Feature
-import 'package:firestore_prototype_v1/features/home/data/repositories/topic_repository_impl.dart';
-import 'package:firestore_prototype_v1/features/home/domain/repositories/topic_repository.dart';
-import 'package:firestore_prototype_v1/features/home/presentation/cubit/topic_selection_cubit.dart';
+import 'package:firestore_prototype_v1/features/topic/data/repositories/topic_repository_impl.dart';
+import 'package:firestore_prototype_v1/features/topic/domain/repositories/topic_repository.dart';
+import 'package:firestore_prototype_v1/features/home/presentation/cubit/home_cubit.dart';
 import 'package:firestore_prototype_v1/features/home/presentation/screens/home_screen.dart';
 
 // Game Feature
@@ -98,13 +98,12 @@ class MyApp extends StatelessWidget {
           BlocProvider<AuthCubit>(
             create: (_) => AuthCubit(authRepository: authRepository),
           ),
-          // TopicCubit needed for HomeScreen
-          BlocProvider<TopicSelectionCubit>(
-            create: (context) => TopicSelectionCubit(
+          // Renamed HomeCubit
+          BlocProvider<HomeCubit>(
+            create: (context) => HomeCubit(
               topicRepository: context.read<TopicRepository>(),
             )..loadTopics(),
           ),
-          // MatchmakingCubit needed for HomeScreen to initiate search
           BlocProvider<MatchmakingCubit>(
             create: (context) => MatchmakingCubit(
               matchmakingRepository: context.read<MatchmakingRepository>(),

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firestore_prototype_v1/core/models/question.dart';
+import 'package:firestore_prototype_v1/features/game/domain/entities/question.dart';
 import 'package:firestore_prototype_v1/features/game/domain/repositories/question_repository.dart';
 import 'package:logging/logging.dart';
 
