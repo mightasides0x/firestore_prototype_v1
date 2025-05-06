@@ -74,15 +74,7 @@ class HomeScreen extends StatelessWidget {
     if (authState is Authenticated) {
       user = authState.user;
     }
-    if (user == null) {
-      // This should ideally not happen due to the router logic in main.dart
-      // If it does, navigate back to login or show an error state
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pushReplacementNamed('/login');
-      });
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    final bool isVerified = user.emailVerified;
+    final bool isVerified = user?.emailVerified ?? false;
 
     // Remove local BlocProvider for TopicSelectionCubit
     // return BlocProvider(
@@ -183,7 +175,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Welcome & Verification Section
               Text(
-                'Welcome, ${user.email}!',
+                'Welcome, ${user?.email}!',
                 style: Theme.of(context).textTheme.titleMedium,
                 textAlign: TextAlign.center,
               ),

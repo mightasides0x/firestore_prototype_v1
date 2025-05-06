@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+- New features should follow the layered architecture: UI Layer (Widgets) -> State Management (Cubits) -> Data Layer (Repositories) -> Data Sources (Firebase).
+- Cubits are preferred for state management.
+- Repositories must have an abstract interface in `features/<feature_name>/domain/repositories/` and an implementation in `features/<feature_name>/data/repositories/`.
+- All UI measurements must use predefined constants from `core/constants/sizes.dart` (e.g., `KSizes.padding8`). Do not use hard-coded numeric values for layout.
+- File and directory names use snake_case. Class names use PascalCase.
+- Refer to `docs/ARCHITECTURE.md` for full details.

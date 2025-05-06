@@ -10,18 +10,13 @@ class GameRepositoryImpl implements GameRepository {
   // Constants for Firestore field names
   static const String _gamesCollection = 'games';
   static const String _fieldPlayer1Id = 'player1Id';
-  static const String _fieldPlayer2Id = 'player2Id';
   static const String _fieldPlayer1Score = 'player1Score';
   static const String _fieldPlayer2Score = 'player2Score';
   static const String _fieldPlayer1Answers = 'player1Answers';
   static const String _fieldPlayer2Answers = 'player2Answers';
-  static const String _fieldTopicId = 'topicId';
-  static const String _fieldQuestionIds = 'questionIds';
   static const String _fieldCurrentQuestionIndex = 'currentQuestionIndex';
   static const String _fieldPlayer1ReadyForNext = 'player1ReadyForNext';
   static const String _fieldPlayer2ReadyForNext = 'player2ReadyForNext';
-  static const String _fieldCreatedAt = 'createdAt';
-  static const String _fieldStatus = 'status';
 
   GameRepositoryImpl({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
@@ -30,7 +25,16 @@ class GameRepositoryImpl implements GameRepository {
   Stream<Game> getGameStream(String gameId) {
     _log.info('Subscribing to game stream for $gameId');
     final docRef = _firestore.collection(_gamesCollection).doc(gameId);
-    return docRef.snapshots().map(_gameFromSnapshot).handleError((error, stackTrace) {
+    return docRef.snapshots().map((doc) {
+      if (!doc.exists || doc.data() == null) {
+        _log.warning('Game document $gameId does not exist or has no data in stream.');
+        // Consider how to handle this. Throwing an error will stop the stream.
+        // Returning a default/error Game object might be an option, or letting cubit handle empty/error.
+        // For now, let the factory handle potential null in data, but non-existence is an issue.
+        throw Exception('Game document $gameId not found or data is null in stream.');
+      }
+      return Game.fromFirestore(doc.id, doc.data()!);
+    }).handleError((error, stackTrace) {
        _log.severe('Error in game stream for $gameId', error, stackTrace);
        // Rethrow the error to be handled by the listener (e.g., in GameCubit)
        throw error;
@@ -135,45 +139,5 @@ class GameRepositoryImpl implements GameRepository {
        _log.severe('Error setting player ready status for game $gameId, user $userId', e, stackTrace);
        throw Exception('Failed to set player ready status: ${e.toString()}');
     }
-  }
-
-  // Helper factory method to parse Firestore data into Game entity
-  Game _gameFromSnapshot(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>?;
-    if (data == null) {
-      throw Exception('Game document data is null for ID: ${doc.id}');
-    }
-
-    // Safely parse map fields, defaulting to empty maps if null/missing
-    final Map<String, Map<String, dynamic>> player1Answers = {};
-    (data[_fieldPlayer1Answers] as Map<String, dynamic>? ?? {}).forEach((key, value) {
-      if (value is Map<String, dynamic>) {
-        player1Answers[key] = value;
-      }
-    });
-
-    final Map<String, Map<String, dynamic>> player2Answers = {};
-    (data[_fieldPlayer2Answers] as Map<String, dynamic>? ?? {}).forEach((key, value) {
-      if (value is Map<String, dynamic>) {
-        player2Answers[key] = value;
-      }
-    });
-
-    return Game(
-      id: doc.id,
-      topicId: data[_fieldTopicId] ?? '',
-      questionIds: List<String>.from(data[_fieldQuestionIds] ?? []),
-      player1Id: data[_fieldPlayer1Id] ?? '',
-      player2Id: data[_fieldPlayer2Id] ?? '',
-      player1Score: data[_fieldPlayer1Score] ?? 0,
-      player2Score: data[_fieldPlayer2Score] ?? 0,
-      player1Answers: player1Answers,
-      player2Answers: player2Answers,
-      currentQuestionIndex: data[_fieldCurrentQuestionIndex] ?? 0,
-      player1ReadyForNext: data[_fieldPlayer1ReadyForNext] ?? false,
-      player2ReadyForNext: data[_fieldPlayer2ReadyForNext] ?? false,
-      status: data[_fieldStatus] ?? 'unknown',
-      createdAt: (data[_fieldCreatedAt] as Timestamp?)?.toDate(),
-    );
   }
 } 

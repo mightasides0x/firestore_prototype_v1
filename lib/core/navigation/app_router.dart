@@ -12,6 +12,8 @@ import 'package:firestore_prototype_v1/features/auth/presentation/screens/login_
 import 'package:firestore_prototype_v1/features/auth/presentation/screens/signup_screen.dart';
 import 'package:firestore_prototype_v1/features/home/presentation/screens/home_screen.dart';
 import 'package:firestore_prototype_v1/features/game/presentation/screens/game_screen.dart';
+import 'package:firestore_prototype_v1/features/game/presentation/screens/results_screen.dart';
+import 'package:firestore_prototype_v1/features/game/domain/entities/game.dart';
 
 // BLoC/Cubit - Needed for GameScreen provider
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -82,6 +84,25 @@ class AppRouter {
           ),
           child: GameScreen(gameId: gameId),
         );
+      },
+    ),
+    // Results Screen
+    GoRoute(
+      path: '/results',
+      name: 'results',
+      builder: (context, state) {
+        // Retrieve the Game object passed as an extra parameter
+        final game = state.extra as Game?;
+        if (game == null) {
+          // Handle missing game data - perhaps redirect to home or show error
+          // For now, show an error message or a fallback screen
+          // This should ideally not happen if navigation is done correctly.
+          print('Error: ResultsScreen loaded without game data in state.extra. This should not happen.');
+          return const Scaffold(
+            body: Center(child: Text('Error: Game results not available. Please return home.')),
+          );
+        }
+        return ResultsScreen(finalGame: game);
       },
     ),
   ];

@@ -1,0 +1,12 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+When creating a new Cubit, ensure it:
+1. Extends `Cubit<YourStateName>`.
+2. Has an initial state in its constructor.
+3. Interacts with repositories passed via its constructor (dependency injection).
+4. State classes associated with the Cubit should be immutable and ideally have a `copyWith` method for generating new state instances.
+
+Refer to `docs/ARCHITECTURE.md` (section on State Management) and existing Cubits in the project for detailed examples.

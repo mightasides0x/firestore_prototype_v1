@@ -1,0 +1,12 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+- All Cubits must have unit tests using `bloc_test`.
+- Repository implementations must have unit tests, mocking external dependencies (e.g., Firebase).
+- Significant widgets and screens should have widget tests.
+- Test files must end with `_test.dart` and mirror the source code structure within the `test/` directory.
+- When writing tests, ensure proper mocking of dependencies.
+
+Refer to `docs/ARCHITECTURE.md` (section on Testing Guidelines) for comprehensive testing requirements and conventions.

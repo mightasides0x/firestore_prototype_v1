@@ -2,6 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:firestore_prototype_v1/features/game/domain/entities/game.dart';
 import 'package:firestore_prototype_v1/features/game/domain/entities/question.dart';
 
+// Default duration for each question timer
+const Duration kDefaultQuestionDuration = Duration(seconds: 15);
+
 abstract class GameState extends Equatable {
   const GameState();
 
@@ -28,15 +31,17 @@ class GameReady extends GameState {
   final Game game;
   final Question currentQuestion;
   final bool isPlayer1; // Useful flag for UI logic
+  final Duration totalDuration; // Duration for the current question timer
 
   const GameReady({
     required this.game,
     required this.currentQuestion,
     required this.isPlayer1,
+    this.totalDuration = kDefaultQuestionDuration, // Default value
   });
 
   @override
-  List<Object?> get props => [game, currentQuestion, isPlayer1];
+  List<Object?> get props => [game, currentQuestion, isPlayer1, totalDuration];
 }
 
 /// State when the game has finished.

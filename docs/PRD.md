@@ -178,30 +178,30 @@ Estimates are rough (S=Small, M=Medium, L=Large).
 *   Task 4.4: Build basic Game Screen UI structure. [DONE]
 *   Task 4.5: Implement logic in GameCubit to fetch initial game state and related questions (using QuestionRepository). [DONE]
 *   Task 4.6: Connect Game Screen UI to GameCubit to display basic info (players, initial state). [DONE]
-*   Task 4.7: Test Phase 4 foundation on Simulator/Device.
+*   Task 4.7: Test Phase 4 foundation on Simulator/Device. [DONE - Implicitly with Phase 5 success]
 
 ### Phase 5: Core Gameplay Loop & Real-time Sync (L)
 
-*   Task 5.1: Implement Question & Options display widget in Game Screen.
-*   Task 5.2: Implement Question Timer UI and logic (driven by GameCubit state).
-*   Task 5.3: Implement answer selection UI interaction.
+*   Task 5.1: Implement Question & Options display widget in Game Screen. [DONE]
+*   Task 5.2: Implement Question Timer UI and logic (driven by GameCubit state). [DONE]
+*   Task 5.3: Implement answer selection UI interaction. [DONE]
 *   Task 5.4: Add `submitAnswer` method to GameRepository (update game doc in Firestore). [DONE]
 *   Task 5.5: Update GameCubit to handle answer submission, calculate score/time, call Repository. [DONE]
-*   Task 5.6: Update Game Screen UI to react to real-time score updates from GameCubit state.
-*   Task 5.7: Implement UI indication for opponent's answer status.
+*   Task 5.6: Update Game Screen UI to react to real-time score updates from GameCubit state. [DONE]
+*   Task 5.7: Implement UI indication for opponent's answer status. [DONE]
 *   Task 5.8: Add question advancement logic to GameRepository (update index, reset ready flags - called by Player 1). [DONE]
-*   Task 5.9: Implement logic in GameCubit (for Player 1) to check readiness and trigger question advancement via Repository.
-*   Task 5.10: Handle game end detection in GameCubit (based on `currentQuestionIndex` vs `questionIds.length`). [DONE - Basic check in stream listener]
-*   Task 5.11: Test Phase 5 core loop on Simulator/Device.
+*   Task 5.9: Implement logic in GameCubit (for Player 1) to check readiness and trigger question advancement via Repository. [DONE]
+*   Task 5.10: Handle game end detection in GameCubit (based on `currentQuestionIndex` vs `questionIds.length`). [DONE]
+*   Task 5.11: Test Phase 5 core loop on Simulator/Device. [DONE]
 
 ### Phase 6: Results Screen (S)
 
-*   Task 6.1: Build Results Screen UI.
-*   Task 6.2: Implement navigation from Game Screen to Results Screen (triggered by GameCubit).
-*   Task 6.3: Display final scores and winner determination on Results Screen (using final game state). [DONE - Basic UI in GameScreen]
-*   Task 6.4: Implement "Play Again" / "Home" navigation buttons.
+*   Task 6.1: Build Results Screen UI. [DONE]
+*   Task 6.2: Implement navigation from Game Screen to Results Screen (triggered by GameCubit). [DONE]
+*   Task 6.3: Display final scores and winner determination on Results Screen (using final game state). [DONE]
+*   Task 6.4: Implement "Play Again" / "Home" navigation buttons. [DONE]
 *   Task 6.5: (Optional) Implement cleanup logic (e.g., nullify `currentMatchId`).
-*   Task 6.6: Test Phase 6 results display on Simulator/Device.
+*   Task 6.6: Test Phase 6 results display on Simulator/Device. [DONE]
 
 ### Phase 7: Security, Polish & Testing (M-L)
 
