@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; // Import Bloc
 import 'package:firestore_prototype_v1/features/auth/presentation/cubit/auth_cubit.dart'; // Import Cubit
+import 'package:go_router/go_router.dart'; // Import go_router
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -100,8 +101,10 @@ class LoginScreen extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Navigate to Sign Up Screen using named route
-                    Navigator.pushNamed(context, '/signup');
+                    // Navigate to Sign Up Screen using go_router
+                    // Assuming your GoRoute for signup has a name: 'signup'
+                    // or you can use the path directly: context.push('/signup');
+                    context.pushNamed('signup');
                   },
                   child: const Text('Don\'t have an account? Sign Up'),
                 ),
